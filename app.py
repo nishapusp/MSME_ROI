@@ -2,9 +2,9 @@ import streamlit as st
 import uuid
 
 # === Constants ===
-DEFAULT_EBLR = 8.25  # Default External Benchmark Lending Rate (Minimum Benchmark)
+DEFAULT_EBLR = 8.25  # Default External Benchmark Lending Rate
 
-# Base spreads for MSME loans <= ₹50 Lakh (Annexure I, Table A)
+# Spreads for MSME loans <= ₹50 Lakh (Annexure I, Table A)
 msme_spread_table_a = {
     "Up to ₹50,000": 1.50,
     "₹50,000 to ₹2 Lakh": 1.75,
@@ -14,26 +14,38 @@ msme_spread_table_a = {
 
 # Spreads for MSME loans > ₹50 Lakh to ₹5 Crore (Annexure I, Table B)
 msme_spread_table_b = {
-    "CR1": [0.75, 0.40, 0.70, 0.95, 1.65],
-    "CR2": [1.20, 0.65, 1.15, 1.45, 1.85],
-    "CR3": [2.00, 0.70, 1.50, 1.95, 2.15],
-    "CR4": [3.00, 0.75, 2.00, 2.45, 2.65],
-    "CR5": [4.90, 2.45, 2.95, 3.40, 3.60],
-    "CR6": [5.75, 3.15, 3.65, 4.10, 4.30],
-    "CR7": [5.85, 3.25, 3.75, 4.20, 4.40],
-    "CR8-CR10": [5.95, 3.35, 3.85, 4.30, 4.50]
+    "CR1": 0.50,
+    "CR2": 0.75,
+    "CR3": 1.75,
+    "CR4": 2.00,
+    "CR5": 3.50,
+    "CR6": 6.85,
+    "CR7": 6.95,
+    "CR8-CR10": 7.05
 }
 
-# Spreads for MSME loans > ₹25 Crore (Annexure I, Table C)
+# Spreads for MSME loans > ₹5 Crore (Annexure I, Table C)
 msme_spread_table_c = {
-    "CR1": {"AAA": 0.15, "AA": 0.20, "A": 0.25, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR2": {"AAA": 0.15, "AA": 0.20, "A": 0.25, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR3": {"AAA": 0.15, "AA": 0.20, "A": 0.25, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR4": {"AAA": 0.15, "AA": 0.20, "A": 0.25, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR5": {"AAA": 0.35, "AA": 0.35, "A": 0.35, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR6": {"AAA": 0.35, "AA": 0.35, "A": 0.35, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR7": {"AAA": 0.35, "AA": 0.35, "A": 0.35, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35},
-    "CR8-CR10": {"AAA": 0.35, "AA": 0.35, "A": 0.35, "BBB": 0.35, "BB & Below": 0.35, "Unrated": 0.35}
+    "> ₹5 Crore to ≤ ₹25 Crore": {
+        "CR1": 1.30,
+        "CR2": 1.55,
+        "CR3": 2.00,
+        "CR4": 3.00,
+        "CR5": 4.90,
+        "CR6": 5.75,
+        "CR7": 5.85,
+        "CR8-CR10": 5.95
+    },
+    "> ₹25 Crore": {
+        "CR1": {"AAA": 0.55, "AA": 0.80, "A": 1.05, "BBB": 1.50, "BB & Below": 2.80, "Unrated": 1.70, "A1+": 0.55, "A1": 0.80, "A2": 1.05, "A3": 1.50},
+        "CR2": {"AAA": 0.60, "AA": 0.90, "A": 1.20, "BBB": 1.65, "BB & Below": 2.95, "Unrated": 1.85, "A1+": 0.60, "A1": 0.90, "A2": 1.20, "A3": 1.65},
+        "CR3": {"AAA": 0.70, "AA": 1.10, "A": 1.50, "BBB": 1.95, "BB & Below": 3.25, "Unrated": 2.15, "A1+": 0.70, "A1": 1.10, "A2": 1.50, "A3": 1.95},
+        "CR4": {"AAA": 0.75, "AA": 1.35, "A": 2.00, "BBB": 2.45, "BB & Below": 3.70, "Unrated": 2.65, "A1+": 0.75, "A1": 1.35, "A2": 2.00, "A3": 2.45},
+        "CR5": {"AAA": 2.45, "AA": 2.70, "A": 2.95, "BBB": 3.40, "BB & Below": 4.65, "Unrated": 3.60, "A1+": 2.45, "A1": 2.70, "A2": 2.95, "A3": 3.40},
+        "CR6": {"AAA": 3.15, "AA": 3.35, "A": 3.65, "BBB": 4.10, "BB & Below": 5.30, "Unrated": 4.30, "A1+": 3.15, "A1": 3.35, "A2": 3.65, "A3": 4.10},
+        "CR7": {"AAA": 3.25, "AA": 3.45, "A": 3.75, "BBB": 4.20, "BB & Below": 5.40, "Unrated": 4.40, "A1+": 3.25, "A1": 3.45, "A2": 3.75, "A3": 4.20},
+        "CR8-CR10": {"AAA": 3.35, "AA": 3.55, "A": 3.85, "BBB": 4.30, "BB & Below": 5.50, "Unrated": 4.50, "A1+": 3.35, "A1": 3.55, "A2": 3.85, "A3": 4.30}
+    }
 }
 
 # Additional Credit Risk Premium for Term Loans > ₹25 Lakh (Annexure I, Table D)
@@ -44,45 +56,71 @@ additional_credit_risk_premium = {
     ">10 years": 1.00
 }
 
-# Collateral-based concessions for General MSME Loans and schemes using card rates (Annexure I, Table E)
+# Collateral-based concessions (Annexure I, Table E)
 collateral_concession = {
     "<50%": 0.00,
     "50% to <75%": 0.00,
     "75% to <100%": 0.10,
     "100% to <150%": 0.25,
-    "150% and above": 0.50,
-    "200% and above": 0.50
+    "150% and above": 0.50
 }
 
-# Spreads for Union MSME Suvidha > ₹500 Lakh, 50% collateral (Page 22)
-suvidha_above_500_collateral_50 = {
-    "CR1": 0.35,
-    "CR2": 0.45,
-    "CR3": 0.55,
-    "CR4": 0.60,
-    "CR5": 1.10
+# Union MSME Suvidha spreads (Annexure II, Page 21)
+suvidha_spreads = {
+    "₹10 Lakh to ₹50 Lakh": {
+        "75% to <100%": 1.35,
+        "100% and above": 1.25
+    },
+    "₹50 Lakh to ₹5 Crore": {
+        "CR1": [0.40, 0.25, 0.20],
+        "CR2": [0.50, 0.40, 0.30],
+        "CR3": [0.60, 0.45, 0.35],
+        "CR4": [0.65, 0.50, 0.40],
+        "CR5": [1.15, 1.00, 0.70]
+    },
+    "> ₹5 Crore": {
+        "CR1": [0.45, 0.70],
+        "CR2": [0.55, 0.85],
+        "CR3": [0.70, 0.95],
+        "CR4": [0.85, 1.05],
+        "CR5": [1.45, 1.55]
+    }
 }
 
-# Schemes where card rates (Tables A, B, C) are used for certain loan amounts
+# Union LAP spreads (Annexure II, Page 16)
+union_lap_spreads = {
+    "Up to ₹25 Lakh": 2.25,
+    "₹25 Lakh to ₹50 Lakh": 2.25,
+    "> ₹50 Lakh": {
+        "CR1": {"Micro": 2.00, "Medium": 2.50},
+        "CR2": {"Micro": 2.00, "Medium": 2.50},
+        "CR3": {"Micro": 2.00, "Medium": 2.50},
+        "CR4": {"Micro": 2.25, "Medium": 2.75},
+        "CR5": {"Micro": 2.75, "Medium": 3.25}
+    }
+}
+
+# Schemes where card rates (Tables A, B, C) are used
 CARD_RATE_SCHEMES = {
     "General MSME Loans": {"all": True},
-    "Union Nari Shakti": {">2500": True},
-    "Union MSME Superfast": {">2500": True},
+    "Union Nari Shakti": {">50": True},
+    "Union MSME Superfast": {">50": True},
     "Union Parivahan": {"all": True},
     "Union Progress": {"all": True},
     "Union Mudra": {"all": True},
     "Union Turnover Plus": {"all": True},
     "Union Ayushman Plus": {">2500": True},
-    "Union LAP": {">2500": True},
-    "Union Solar": {">2500": True},
-    "Union Equipment Finance": {">2500": True},
-    "Union Contractor": {">2500": True},
-    "Union Residential Real Estate Inventory Support": {">2500": True}
+    "Union Solar": {">50": True},
+    "Union Equipment Finance": {">50": True},
+    "Union Contractor": {">50": True},
+    "Union Rent": {">50": True}
 }
 
-# Schemes where Table D tenor premium does not apply (built-in risk premiums)
+# Schemes where Table D tenor premium does not apply
 NO_TENOR_PREMIUM_SCHEMES = [
-    "Union Residential Real Estate Inventory Support"
+    "Union LAP",
+    "Union Ayushman Plus",
+    "Union Turnover Plus"
 ]
 
 # === Streamlit UI ===
@@ -96,25 +134,38 @@ amount = st.number_input("Enter Loan Amount in ₹ Lakhs", min_value=0.01, step=
 if amount <= 0:
     st.warning("Loan amount must be positive.")
 
-# Scheme selection (only if amount >= ₹10 Lakh)
+# Scheme selection
 schemes = [
-    "General MSME Loans", "Union Nari Shakti", "Union MSME Superfast", "Union MSME Suvidha", "Union Parivahan",
-    "Union Turnover Plus", "Union Ayushman Plus", "Union Progress", "Union Mudra", "Union LAP",
-    "Union Solar", "Union Equipment Finance", "Union Contractor", "Union Residential Real Estate Inventory Support"
+    "General MSME Loans", "Union Nari Shakti", "Union MSME Superfast", "Union MSME Suvidha",
+    "Union Parivahan", "Union Turnover Plus", "Union Ayushman Plus", "Union Progress",
+    "Union Mudra", "Union LAP", "Union Solar", "Union Equipment Finance",
+    "Union Contractor", "Union Rent"
 ]
-scheme = None
-if amount >= 10:
-    scheme = st.selectbox("Select Scheme", schemes)
-else:
+if amount <= 10:
     scheme = "General MSME Loans"
-    st.warning("Loan amount must be ₹10 Lakh or above to select a specific scheme. Using General MSME rates.")
+    st.warning("Loan amount must be > ₹10 Lakh to select specific schemes like Union MSME Suvidha. Using General MSME rates.")
+else:
+    scheme = st.selectbox("Select Scheme", schemes)
 
 # Loan type
-loan_type_options = ["Cash Credit", "Overdraft"] if scheme == "Union MSME Suvidha" else ["Cash Credit/Working Capital"] if scheme == "Union MSME Superfast" else ["Cash Credit/Working Capital", "Term Loan"]
+loan_type_options = (
+    ["Cash Credit", "Term Loan", "Overdraft"] if scheme == "Union MSME Suvidha" else
+    ["Term Loan", "Overdraft"] if scheme == "Union LAP" else
+    ["Cash Credit/Working Capital"] if scheme == "Union MSME Superfast" else
+    ["Cash Credit/Working Capital", "Term Loan"]
+)
 loan_type = st.selectbox("Select Loan Type", loan_type_options)
 
 # Security type
-security_options = ["Collateral Security Available", "CGTMSE"] if scheme in ["General MSME Loans", "Union Nari Shakti", "Union Parivahan", "Union Progress", "Union Mudra", "Union Turnover Plus", "Union Ayushman Plus", "Union Solar", "Union Equipment Finance", "Union Contractor"] else ["Collateral Security Available", "Hybrid"] if scheme == "Union MSME Suvidha" else ["Collateral Security Available"]
+security_options = (
+    ["Collateral Security Available", "CGTMSE"] if scheme in [
+        "General MSME Loans", "Union Nari Shakti", "Union Parivahan", "Union Progress",
+        "Union Mudra", "Union Turnover Plus", "Union Ayushman Plus", "Union Solar",
+        "Union Equipment Finance", "Union Contractor", "Union Rent"
+    ] else
+    ["Collateral Security Available", "Hybrid"] if scheme == "Union MSME Suvidha" else
+    ["Collateral Security Available"]
+)
 security = st.selectbox("Select Security Type", security_options)
 
 # Collateral selection
@@ -132,366 +183,173 @@ if scheme == "Union MSME Suvidha":
 elif scheme == "Union LAP":
     collateral_options = ["200% and above"]
     st.info("For Union LAP, minimum collateral coverage is 200%.")
-elif scheme == "Union Residential Real Estate Inventory Support":
+elif scheme == "Union Rent":
     collateral_options = ["100% to <150%", "150% and above"]
-    st.info("For Union Residential Real Estate Inventory Support, minimum collateral coverage is 133%.")
-elif scheme == "Union MSME Superfast":
-    internal_rating_temp = st.session_state.get("internal_rating", None)
-    if internal_rating_temp in ["CR1", "CR2"]:
-        collateral_options = ["50% to <75%", "75% to <100%", "100% to <150%", "150% and above"]
-        st.info("For Union MSME Superfast with CR1 or CR2, minimum collateral coverage is 50%.")
-    elif internal_rating_temp in ["CR3", "CR4"]:
-        collateral_options = ["75% to <100%", "100% to <150%", "150% and above"]
-        st.info("For Union MSME Superfast with CR3 or CR4, minimum collateral coverage is 75%.")
-    else:
-        collateral_options = ["75% to <100%", "100% to <150%", "150% and above"]
-        st.info("For Union MSME Superfast, select an internal rating to confirm collateral requirements.")
-elif security == "CGTMSE":
-    collateral_options = []
-else:
-    collateral_options = ["<50%", "50% to <75%", "75% to <100%", "100% to <150%", "150% and above"]
-collateral = None
-if security != "CGTMSE" and collateral_options:
-    collateral = st.selectbox("Select Collateral Coverage", collateral_options)
-elif security == "CGTMSE":
-    st.info("CGTMSE security implies no collateral coverage.")
+    st.info("For Union Rent, minimum collateral coverage is assumed 100% (pending scheme details).")
+collateral = st.selectbox("Select Collateral Coverage", collateral_options)
 
-# Tenor input only for Term Loan
+# Tenor for term loans
 tenor = None
 if loan_type == "Term Loan":
-    tenor = st.selectbox("Select Loan Tenor", ["Up to 1 year", ">1 to 3 years", ">3 to 5 years", ">5 to 10 years", ">10 years"])
+    tenor_options = list(additional_credit_risk_premium.keys())
+    tenor = st.selectbox("Select Loan Tenor", tenor_options)
 
-# Rating inputs
+# Internal rating for loans > ₹50 Lakh
 internal_rating = None
+if amount > 50 and (scheme in CARD_RATE_SCHEMES and CARD_RATE_SCHEMES[scheme].get("all", False) or
+                    (scheme in CARD_RATE_SCHEMES and amount > float(list(CARD_RATE_SCHEMES[scheme].keys())[0])) or
+                    scheme == "Union MSME Suvidha"):
+    internal_rating = st.selectbox("Select Internal Rating", ["CR1", "CR2", "CR3", "CR4", "CR5", "CR6", "CR7", "CR8-CR10"])
+elif scheme == "Union LAP" and amount > 50:
+    internal_rating = st.selectbox("Select Internal Rating", ["CR1", "CR2", "CR3", "CR4", "CR5"])
+
+# External rating for loans > ₹25 Crore
 external_rating = None
-if amount > 50 or (scheme == "Union MSME Superfast" and amount >= 10) or (scheme in ["Union Nari Shakti", "Union Ayushman Plus", "Union LAP", "Union Solar", "Union Equipment Finance", "Union Contractor"] and amount > 25):
-    internal_rating = st.selectbox("Select Internal Credit Rating", list(msme_spread_table_b.keys()))
-    st.session_state["internal_rating"] = internal_rating
-if amount > 2500 or (scheme == "Union Ayushman Plus" and amount > 2500):
-    external_rating = st.selectbox("Select External Credit Rating", ["AAA", "AA", "A", "BBB", "BB & Below", "Unrated"])
+if amount > 2500 and scheme in CARD_RATE_SCHEMES and (CARD_RATE_SCHEMES[scheme].get("all", False) or
+                                                     amount > float(list(CARD_RATE_SCHEMES[scheme].keys())[0])):
+    external_rating = st.selectbox("Select External Rating", ["AAA", "AA", "A", "BBB", "BB & Below", "Unrated", "A1+", "A1", "A2", "A3"])
 
-# Additional inputs for specific schemes
-is_digitized_turnover = st.checkbox("Digitized Sales Turnover >50%", value=False) if scheme == "Union Turnover Plus" else False
-
-# === Eligibility Check ===
-eligible = True
-if scheme == "Union MSME Suvidha":
-    if amount <= 500 and collateral in ["<50%", "50% to <75%", None]:
-        eligible = False
-        st.error("Ineligible for Union MSME Suvidha: Loan amount ≤ ₹500 Lakh requires minimum 75% collateral coverage.")
-    elif amount > 500 and collateral == "<50%":
-        eligible = False
-        st.error("Ineligible for Union MSME Suvidha: Loan amount > ₹500 Lakh requires minimum 50% collateral coverage.")
-    elif loan_type == "Overdraft" and collateral not in ["100% to <150%", "150% and above"]:
-        eligible = False
-        st.error("Ineligible for Union MSME Suvidha Overdraft: Minimum collateral coverage is 125%.")
-elif scheme == "Union MSME Superfast" and internal_rating in ["CR1", "CR2"] and collateral == "<50%":
-    eligible = False
-    st.error("Ineligible for Union MSME Superfast: CR1 or CR2 requires minimum 50% collateral coverage.")
-elif scheme == "Union MSME Superfast" and internal_rating in ["CR3", "CR4"] and collateral in ["<50%", "50% to <75%"]:
-    eligible = False
-    st.error("Ineligible for Union MSME Superfast: CR3 or CR4 requires minimum 75% collateral coverage.")
-elif scheme == "Union LAP" and collateral != "200% and above":
-    eligible = False
-    st.error("Ineligible for Union LAP: Minimum collateral coverage is 200%.")
-elif scheme == "Union Residential Real Estate Inventory Support" and collateral not in ["100% to <150%", "150% and above"]:
-    eligible = False
-    st.error("Ineligible for Union Residential Real Estate Inventory Support: Minimum collateral coverage is 133%.")
-
-# === ROI Calculation Logic ===
-def calculate_roi():
-    if not eligible:
-        return None, None, None, None
+# Calculate ROI
+def calculate_roi(eblr, amount, scheme, loan_type, security, collateral, tenor, internal_rating, external_rating):
     roi = eblr
     spread = 0.0
-    concession = 0.0
-    tenor_premium = 0.0
-    apply_concession = False
+    premium = 0.0
+    concession = collateral_concession.get(collateral, 0.0)
+    debug_info = {
+        "EBLR": f"{eblr:.2f}%",
+        "Spread": "N/A",
+        "Spread Source": "N/A",
+        "Additional Credit Risk Premium": "0.00%",
+        "Collateral Concession": f"{concession:.2f}%",
+        "Final ROI": "N/A"
+    }
 
-    # Check if scheme uses card rates
-    if scheme in CARD_RATE_SCHEMES:
-        if CARD_RATE_SCHEMES[scheme].get("all", False) or \
-           (scheme == "Union Nari Shakti" and amount > 2500) or \
-           (scheme == "Union MSME Superfast" and amount > 2500) or \
-           (scheme == "Union Ayushman Plus" and amount > 2500) or \
-           (scheme in ["Union LAP", "Union Solar", "Union Equipment Finance", "Union Contractor", "Union Residential Real Estate Inventory Support"] and amount > 2500):
-            apply_concession = True if security != "CGTMSE" else False
-
-    # General MSME Loans (Annexure I)
-    if scheme == "General MSME Loans":
+    if scheme == "Union MSME Suvidha":
+        if amount <= 10:
+            st.error("Union MSME Suvidha is only for loans > ₹10 Lakh.")
+            return None, {"Error": "Union MSME Suvidha is only for loans > ₹10 Lakh."}
         if amount <= 50:
-            for k, v in msme_spread_table_a.items():
-                range_str = k.split("₹")[-1].split(" to ")[-1] if "to" in k else k.split("₹")[-1]
-                range_str = range_str.split()[0].replace(",", "")
-                upper_limit = float(range_str) * (100 if "Crore" in k else 1)
-                if amount <= upper_limit:
-                    spread = v
-                    break
-            else:
-                spread = 2.25
-        else:
-            spreads = msme_spread_table_b.get(internal_rating, [5.95] * 5)
-            idx = {"AAA": 0, "AA": 1, "A": 2, "BBB": 3, "BB & Below": 4, "Unrated": 4}.get(external_rating, 4) if amount > 2500 else 4 if security == "CGTMSE" else 0
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35) if amount > 2500 else spreads[idx]
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union MSME Suvidha (Pages 21-22)
-    elif scheme == "Union MSME Suvidha":
-        if amount <= 50:
-            spread = 1.25 if collateral == "100% to <150%" else 1.35
+            spread = suvidha_spreads["₹10 Lakh to ₹50 Lakh"]["75% to <100%"] if collateral == "75% to <100%" else suvidha_spreads["₹10 Lakh to ₹50 Lakh"]["100% and above"]
+            debug_info["Spread Source"] = "Suvidha ₹10 Lakh to ₹50 Lakh"
         elif amount <= 500:
-            cr_map = {
-                "CR1": {"75% to <100%": 0.40, "100% to <150%": 0.25, "150% and above": 0.20},
-                "CR2": {"75% to <100%": 0.50, "100% to <150%": 0.40, "150% and above": 0.30},
-                "CR3": {"75% to <100%": 0.60, "100% to <150%": 0.45, "150% and above": 0.35},
-                "CR4": {"75% to <100%": 0.65, "100% to <150%": 0.50, "150% and above": 0.40},
-                "CR5": {"75% to <100%": 1.15, "100% to <150%": 1.00, "150% and above": 0.70}
-            }
-            spread = cr_map.get(internal_rating, {}).get(collateral, 1.25)
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹50 Lakh.")
+                return None, {"Error": "Internal rating is required for loans > ₹50 Lakh."}
+            collateral_index = {"75% to <100%": 0, "100% to <150%": 1, "150% and above": 2}.get(collateral, 1)
+            spread = suvidha_spreads["₹50 Lakh to ₹5 Crore"][internal_rating][collateral_index]
+            debug_info["Spread Source"] = f"Suvidha ₹50 Lakh to ₹5 Crore, Collateral Index {collateral_index}"
         else:
-            spread = suvidha_above_500_collateral_50.get(internal_rating, 1.10) if collateral == "50% to <75%" else msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-            apply_concession = True if collateral != "50% to <75%" and security != "CGTMSE" else False
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹50 Lakh.")
+                return None, {"Error": "Internal rating is required for loans > ₹50 Lakh."}
+            collateral_index = 0 if collateral in ["50% to <75%", "75% to <100%", "100% to <150%"] else 1
+            spread = suvidha_spreads["> ₹5 Crore"][internal_rating][collateral_index]
+            debug_info["Spread Source"] = f"Suvidha > ₹5 Crore, Collateral Index {collateral_index}"
         if loan_type == "Overdraft":
-            roi += 0.25
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Nari Shakti (Page 13)
-    elif scheme == "Union Nari Shakti":
-        if amount <= 25:
-            spread = 2.25
-        elif amount <= 50:
-            spread = 1.90
-        else:
-            cr_map = {"CR1": 1.50, "CR2": 1.75, "CR3": 2.00, "CR4": 2.25, "CR5": 2.50}
-            spread = cr_map.get(internal_rating, 2.50)
-            if amount > 2500:
-                spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union MSME Superfast (Page 15)
-    elif scheme == "Union MSME Superfast":
-        spread_map = {"CR1": 0.85, "CR2": 1.10, "CR3": 1.10, "CR4": 1.35}
-        spread = spread_map.get(internal_rating, 1.50)
-        if amount > 2500:
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Parivahan, Union Progress, Union Mudra (Page 13, 15)
-    elif scheme in ["Union Parivahan", "Union Progress", "Union Mudra"]:
-        if amount <= 50:
-            for k, v in msme_spread_table_a.items():
-                range_str = k.split("₹")[-1].split(" to ")[-1] if "to" in k else k.split("₹")[-1]
-                range_str = range_str.split()[0].replace(",", "")
-                upper_limit = float(range_str) * (100 if "Crore" in k else 1)
-                if amount <= upper_limit:
-                    spread = v
-                    break
-            else:
-                spread = 2.25
-        else:
-            spreads = msme_spread_table_b.get(internal_rating, [5.95] * 5)
-            idx = {"AAA": 0, "AA": 1, "A": 2, "BBB": 3, "BB & Below": 4, "Unrated": 4}.get(external_rating, 4) if amount > 2500 else 4 if security == "CGTMSE" else 0
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35) if amount > 2500 else spreads[idx]
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Turnover Plus (Page 14)
-    elif scheme == "Union Turnover Plus":
-        if amount <= 50:
-            for k, v in msme_spread_table_a.items():
-                range_str = k.split("₹")[-1].split(" to ")[-1] if "to" in k else k.split("₹")[-1]
-                range_str = range_str.split()[0].replace(",", "")
-                upper_limit = float(range_str) * (100 if "Crore" in k else 1)
-                if amount <= upper_limit:
-                    spread = v
-                    break
-            else:
-                spread = 2.25
-        else:
-            spreads = msme_spread_table_b.get(internal_rating, [5.95] * 5)
-            idx = {"AAA": 0, "AA": 1, "A": 2, "BBB": 3, "BB & Below": 4, "Unrated": 4}.get(external_rating, 4) if amount > 2500 else 4 if security == "CGTMSE" else 0
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35) if amount > 2500 else spreads[idx]
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if is_digitized_turnover:
-            roi = max(roi - 0.50, eblr)
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Ayushman Plus (Page 14)
-    elif scheme == "Union Ayushman Plus":
-        if amount <= 2500:
-            spreads = {
-                "CR1": {"AAA/A1+": 0.25, "AA/A1": 0.25, "A/A2": 0.25, "BBB/A3": 0.25, "A4 & Below": 0.50, "Unrated": 1.00},
-                "CR2": {"AAA/A1+": 0.25, "AA/A1": 0.25, "A/A2": 0.25, "BBB/A3": 0.50, "A4 & Below": 1.00, "Unrated": 1.00},
-                "CR3": {"AAA/A1+": 0.25, "AA/A1": 0.25, "A/A2": 0.25, "BBB/A3": 0.75, "A4 & Below": 1.00, "Unrated": 1.00},
-                "CR4": {"AAA/A1+": 0.25, "AA/A1": 0.25, "A/A2": 0.50, "BBB/A3": 1.00, "A4 & Below": 1.00, "Unrated": 1.00},
-                "CR5": {"AAA/A1+": 0.50, "AA/A1": 0.75, "A/A2": 1.00, "BBB/A3": 1.50, "A4 & Below": 2.00, "Unrated": 2.25}
-            }
-            external_key = external_rating if amount > 2500 else "AAA/A1+"
-            spread = spreads.get(internal_rating, {}).get(external_key, 1.00)
-        else:
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union LAP (Page 16)
+            spread += 0.25  # 25 bps additional for OD over Cash Credit
+        if loan_type == "Term Loan" and amount > 25:
+            premium = additional_credit_risk_premium.get(tenor, 0.0)
+            debug_info["Additional Credit Risk Premium"] = f"{premium:.2f}%"
     elif scheme == "Union LAP":
-        if amount <= 25:
-            spread = 2.25
-        elif amount <= 50:
-            spread = 2.25
+        if amount <= 50:
+            spread = union_lap_spreads["Up to ₹25 Lakh"] if amount <= 25 else union_lap_spreads["₹25 Lakh to ₹50 Lakh"]
+            debug_info["Spread Source"] = "LAP ≤ ₹50 Lakh"
         else:
-            cr_map = {"Micro": {"CR1": 2.00, "CR2": 2.00, "CR3": 2.00, "CR4": 2.25, "CR5": 2.50},
-                      "Medium": {"CR1": 2.50, "CR2": 2.50, "CR3": 2.50, "CR4": 2.75, "CR5": 3.00}}
-            spread = cr_map.get("Micro", {}).get(internal_rating, 2.50)
-            if amount > 2500:
-                spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Solar (Page 17)
-    elif scheme == "Union Solar":
-        if amount <= 25:
-            spread = 0.50
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹50 Lakh.")
+                return None, {"Error": "Internal rating is required for loans > ₹50 Lakh."}
+            spread = union_lap_spreads["> ₹50 Lakh"][internal_rating]["Micro"]  # Assuming Micro for MSME
+            debug_info["Spread Source"] = "LAP > ₹50 Lakh, Micro"
+    elif scheme == "Union Rent":
+        st.warning("Union Rent rates are not specified. Using General MSME rates until specific rates are provided.")
+        debug_info["Warning"] = "Union Rent rates are not specified. Using General MSME rates."
+        if amount <= 0.5:
+            spread = msme_spread_table_a["Up to ₹50,000"]
+            debug_info["Spread Source"] = "Table A: Up to ₹50,000"
+        elif amount <= 2:
+            spread = msme_spread_table_a["₹50,000 to ₹2 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹50,000 to ₹2 Lakh"
+        elif amount <= 10:
+            spread = msme_spread_table_a["₹2 Lakh to ₹10 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹2 Lakh to ₹10 Lakh"
         elif amount <= 50:
-            spread = 0.75
+            spread = msme_spread_table_a["₹10 Lakh to ₹50 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹10 Lakh to ₹50 Lakh"
+        elif amount <= 500:
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹50 Lakh.")
+                return None, {"Error": "Internal rating is required for loans > ₹50 Lakh."}
+            spread = msme_spread_table_b[internal_rating]
+            debug_info["Spread Source"] = f"Table B: {internal_rating}"
+        elif amount <= 2500:
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹5 Crore.")
+                return None, {"Error": "Internal rating is required for loans > ₹5 Crore."}
+            spread = msme_spread_table_c["> ₹5 Crore to ≤ ₹25 Crore"][internal_rating]
+            debug_info["Spread Source"] = f"Table C: > ₹5 Crore to ≤ ₹25 Crore, {internal_rating}"
         else:
-            cr_map = {"CR1": 0.50, "CR2": 0.55, "CR3": 0.65, "CR4": 0.80, "CR5": 1.00}
-            spread = cr_map.get(internal_rating, 1.00)
-            if amount > 2500:
-                spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
-
-    # Union Equipment Finance (Page 17)
-    elif scheme == "Union Equipment Finance":
-        if amount <= 25:
-            spread = 1.25
+            if not internal_rating or not external_rating:
+                st.error("Internal and external ratings are required for loans > ₹25 Crore.")
+                return None, {"Error": "Internal and external ratings are required for loans > ₹25 Crore."}
+            spread = msme_spread_table_c["> ₹25 Crore"][internal_rating][external_rating]
+            debug_info["Spread Source"] = f"Table C: > ₹25 Crore, {internal_rating}, {external_rating}"
+        if loan_type == "Term Loan" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
+            premium = additional_credit_risk_premium.get(tenor, 0.0)
+            debug_info["Additional Credit Risk Premium"] = f"{premium:.2f}%"
+    else:
+        if amount <= 0.5:
+            spread = msme_spread_table_a["Up to ₹50,000"]
+            debug_info["Spread Source"] = "Table A: Up to ₹50,000"
+        elif amount <= 2:
+            spread = msme_spread_table_a["₹50,000 to ₹2 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹50,000 to ₹2 Lakh"
+        elif amount <= 10:
+            spread = msme_spread_table_a["₹2 Lakh to ₹10 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹2 Lakh to ₹10 Lakh"
         elif amount <= 50:
-            spread = 1.25
+            spread = msme_spread_table_a["₹10 Lakh to ₹50 Lakh"]
+            debug_info["Spread Source"] = "Table A: ₹10 Lakh to ₹50 Lakh"
+        elif amount <= 500:
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹50 Lakh.")
+                return None, {"Error": "Internal rating is required for loans > ₹50 Lakh."}
+            spread = msme_spread_table_b[internal_rating]
+            debug_info["Spread Source"] = f"Table B: {internal_rating}"
+        elif amount <= 2500:
+            if not internal_rating:
+                st.error("Internal rating is required for loans > ₹5 Crore.")
+                return None, {"Error": "Internal rating is required for loans > ₹5 Crore."}
+            spread = msme_spread_table_c["> ₹5 Crore to ≤ ₹25 Crore"][internal_rating]
+            debug_info["Spread Source"] = f"Table C: > ₹5 Crore to ≤ ₹25 Crore, {internal_rating}"
         else:
-            cr_map = {"CR1": 0.25, "CR2": 0.50, "CR3": 0.75, "CR4": 1.00, "CR5": 1.25}
-            spread = cr_map.get(internal_rating, 1.25)
-            if amount > 2500:
-                spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
+            if not internal_rating or not external_rating:
+                st.error("Internal and external ratings are required for loans > ₹25 Crore.")
+                return None, {"Error": "Internal and external ratings are required for loans > ₹25 Crore."}
+            spread = msme_spread_table_c["> ₹25 Crore"][internal_rating][external_rating]
+            debug_info["Spread Source"] = f"Table C: > ₹25 Crore, {internal_rating}, {external_rating}"
+        if loan_type == "Term Loan" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
+            premium = additional_credit_risk_premium.get(tenor, 0.0)
+            debug_info["Additional Credit Risk Premium"] = f"{premium:.2f}%"
 
-    # Union Contractor (Page 18)
-    elif scheme == "Union Contractor":
-        if amount <= 25:
-            spread = 1.13
-        elif amount <= 50:
-            spread = 1.40
-        else:
-            cr_map = {
-                "Micro": {"CR1": 0.90, "CR2": 1.00, "CR3": 1.10, "CR4": 1.40, "CR5": 1.60},
-                "Small & Medium": {"CR1": 1.00, "CR2": 1.10, "CR3": 1.25, "CR4": 1.50, "CR5": 1.75}
-            }
-            spread = cr_map.get("Small & Medium", {}).get(internal_rating, 1.75)
-            if amount > 2500:
-                spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        if loan_type == "Term Loan" and tenor != "Up to 1 year" and amount > 25 and scheme not in NO_TENOR_PREMIUM_SCHEMES:
-            tenor_premium = additional_credit_risk_premium.get(tenor, 0.0)
-            roi += tenor_premium
+    roi += spread + premium - concession
+    debug_info["Spread"] = f"{spread:.2f}%"
+    debug_info["Final ROI"] = f"{roi:.2f}%"
+    return roi, debug_info
 
-    # Union Residential Real Estate Inventory Support (Page 19)
-    elif scheme == "Union Residential Real Estate Inventory Support":
-        if tenor == "Up to 1 year":
-            spread = 2.60
-        elif tenor == ">1 to 3 years":
-            spread = 3.60
-        elif tenor == ">3 to 5 years":
-            spread = 4.10
-        else:  # >5 years
-            spread = 4.10
-        if amount > 2500:
-            spread = msme_spread_table_c.get(internal_rating, {}).get(external_rating, 0.35)
-        roi += spread
-        if apply_concession:
-            concession = collateral_concession.get(collateral, 0.0)
-            roi -= concession
-        # No Table D premium, as spreads include tenor-based risk
+# Button to calculate
+if st.button("Calculate ROI"):
+    roi, debug_info = calculate_roi(eblr, amount, scheme, loan_type, security, collateral, tenor, internal_rating, external_rating)
+    if roi is not None:
+        st.success(f"Effective Rate of Interest (ROI): {roi:.2f}%")
+        st.write("Calculation Details:")
+        for key, value in debug_info.items():
+            if key not in ["Error", "Warning"]:
+                st.write(f"{key}: {value}")
+        if "Warning" in debug_info:
+            st.warning(debug_info["Warning"])
+    else:
+        st.error(debug_info.get("Error", "Please check input values and try again."))
 
-    return round(roi, 2), spread, concession, tenor_premium
-
-# === Calculate ROI ===
-roi, spread, concession, tenor_premium = calculate_roi()
-
-# === Output ===
-st.markdown("---")
-if roi is not None:
-    st.subheader(f"Calculated ROI: {roi}%")
-    st.text(f"Scheme: {scheme}")
-    st.text(f"Loan Amount: ₹{amount} Lakh")
-    st.text(f"Loan Type: {loan_type}, Security: {security}")
-    if collateral:
-        st.text(f"Collateral Coverage: {collateral}")
-    if tenor:
-        st.text(f"Loan Tenor: {tenor}")
-    if internal_rating:
-        st.text(f"Internal Rating: {internal_rating}")
-    if external_rating:
-        st.text(f"External Rating: {external_rating}")
-    if is_digitized_turnover:
-        st.text("Digitized Sales Turnover >50%: Yes")
-    st.text(f"Debug Info: Spread = {spread}%, Concession = {concession}%, Tenor Premium = {tenor_premium}%")
-else:
-    st.error("ROI cannot be calculated due to ineligibility.")
+# Session state for unique run ID
+if 'run_id' not in st.session_state:
+    st.session_state.run_id = str(uuid.uuid4())
